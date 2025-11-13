@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evans Clothing Co. - Invoice</title>
+<style>
+  :root {
+    --primary: #007bff;
+    --light: #f2f2f2;
+    --border: #ddd;
+  }
+
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .invoice-box {
+    width: 100%;
+    max-width: 900px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 30px;
+  }
+
+  .invoice-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+
+  .invoice-header h1 {
+    margin: 0;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+  }
+
+  .invoice-header p {
+    margin: 3px 0;
+    font-size: 14px;
+  }
+
+  .invoice-details {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  .invoice-details div {
+    flex: 1 1 45%;
+    background: var(--light);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+
+  .invoice-details strong {
+    display: inline-block;
+    min-width: 90px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  th {
+    background-color: var(--light);
+    font-weight: bold;
+  }
+
+  td[contenteditable="true"] {
+    background-color: #fff;
+    min-width: 60px;
+  }
+
+  td[contenteditable="true"]:focus {
+    outline: 2px dashed var(--primary);
+    background: #eef6ff;
+  }
+
+  .add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    font-size: 20px;
+    margin: 10px 0;
+  }
+
+  .add-btn:hover {
+    background-color: #0056b3;
+  }
+
+  .remove-btn {
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 3px 8px;
+  }
+
+  .remove-btn:hover {
+    background: darkred;
+  }
+
+  .totals {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .totals div {
+    text-align: right;
+    min-width: 250px;
+    font-weight: bold;
+    font-size: 15px;
+    background: var(--light);
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 13px;
+    color: #555;
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .invoice-box {
+      padding: 15px;
+    }
+    table, th, td {
+      font-size: 13px;
+      padding: 8px;
+    }
+    .totals div {
+      min-width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .invoice-header h1 {
+      font-size: 22px;
+    }
+    .invoice-details div {
+      flex: 1 1 100%;
+    }
+    th, td {
+      font-size: 12px;
+      padding: 6px;
+    }
+    .add-btn {
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="invoice-box">
+  <div class="invoice-header">
+    <h1>Evans Clothing Co.</h1>
+    <p>Dharan Line, Itahari, Nepal</p>
+    <p>Phone: 9700462618</p>
+  </div>
+
+  <div class="invoice-details">
+    <div>
+      <strong>Invoice No:</strong> <span id="invoiceNo"></span><br>
+      <strong>Date:</strong> <span id="invoiceDate"></span>
+    </div>
+    <div>
+      <strong>Billed To:</strong><br>
+      <span contenteditable="true">Customer Name</span><br>
+      <span contenteditable="true">Customer Address</span>
+    </div>
+  </div>
+
+  <table id="invoiceTable">
+    <thead>
+      <tr>
+        <th>SN</th>
+        <th>Item Description</th>
+        <th>Quantity</th>
+        <th>Unit Price (Rs.)</th>
+        <th>Total (Rs.)</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td contenteditable="true">Men’s Denim Jacket</td>
+        <td contenteditable="true" oninput="calculateTotal()">1</td>
+        <td contenteditable="true" oninput="calculateTotal()">3500</td>
+        <td class="line-total">3500</td>
+        <td><button class="remove-btn" onclick="removeRow(this)">X</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button class="add-btn" onclick="addRow()">+</button>
+
+  <div class="totals">
+    <div>
+      Subtotal: Rs. <span id="subtotal">3500</span><br>
+      Delivery Charge: Rs. <span id="delivery" contenteditable="true" oninput="calculateTotal()">150</span><br>
+      Grand Total: <strong>Rs. <span id="grandtotal">3650</span></strong>
+    </div>
+  </div>
+
+  <div class="footer">
+    Thank you for shopping with Evans Clothing Co.<br>
+    <em>“Style that fits your story.”</em>
+  </div>
+</div>
+
+<script>
+  // Auto-fill invoice number and date
+  const invoiceNo = Math.floor(100 + Math.random() * 900);
+  document.getElementById("invoiceNo").innerText = "#" + invoiceNo;
+  document.getElementById("invoiceDate").innerText = new Date().toLocaleDateString();
+
+  // Add new row
+  function addRow() {
+    const table = document.getElementById("invoiceTable").getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
+    const index = table.rows.length;
+
+    newRow.innerHTML = `
+      <td>${index}</td>
+      <td contenteditable="true">New Item</td>
+      <td contenteditable="true" oninput="calculateTotal()">1</td>
+      <td contenteditable="true" oninput="calculateTotal()">0</td>
+      <td class="line-total">0</td>
+      <td><button class="remove-btn" onclick="removeRow(this)">X</button></td>
+    `;
+    calculateTotal();
+  }
+
+  // Remove row
+  function removeRow(button) {
+    const row = button.closest("tr");
+    row.remove();
+    updateSN();
+    calculateTotal();
+  }
+
+  // Update serial numbers
+  function updateSN() {
+    const rows = document.querySelectorAll("#invoiceTable tbody tr");
+    rows.forEach((r, i) => (r.cells[0].innerText = i + 1));
+  }
+
+  // Calculate totals
+  function calculateTotal() {
+    const rows = document.querySelectorAll("#invoiceTable tbody tr");
+    let subtotal = 0;
+
+    rows.forEach(row => {
+      const qty = parseFloat(row.cells[2].innerText) || 0;
+      const price = parseFloat(row.cells[3].innerText) || 0;
+      const total = qty * price;
+      row.cells[4].innerText = total.toFixed(2);
+      subtotal += total;
+    });
+
+    let delivery = parseFloat(document.getElementById("delivery").innerText) || 0;
+    const grand = subtotal + delivery;
+
+    document.getElementById("subtotal").innerText = subtotal.toFixed(2);
+    document.getElementById("grandtotal").innerText = grand.toFixed(2);
+  }
+
+  calculateTotal();
+</script>
+
+</body>
+</html>
