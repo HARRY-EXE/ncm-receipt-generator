@@ -14,34 +14,6 @@
     background: #f2f2f2;
   }
 
-  .pdf-button {
-    margin-bottom: 20px;
-    padding: 12px 24px;
-    background-color: #0066cc;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: background-color 0.3s;
-  }
-
-  .pdf-button:hover {
-    background-color: #0052a3;
-  }
-
-  .pdf-button:active {
-    background-color: #004080;
-  }
-
-  .pdf-button:disabled {
-    background-color: #999;
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
   .label {
     width: 420px;
     background: #fff;
@@ -114,7 +86,6 @@
     font-size: 12px;
   }
 
-  /* Address + QR layout */
   .info-qr-section {
     display: flex;
     justify-content: space-between;
@@ -134,15 +105,6 @@
     padding: 5px;
     font-size: 12px;
     box-sizing: border-box;
-  }
-
-  .address-block[contenteditable="true"]:focus {
-    outline: 2px solid #0066cc;
-    background-color: #f0f8ff;
-  }
-
-  .address-block p {
-    margin: 2px 0;
   }
 
   .qr-left {
@@ -167,19 +129,9 @@
     height: auto;
   }
 
-  /* Editable elements styling */
-  [contenteditable="true"] {
-    outline: 1px dashed #999;
-    min-height: 1em;
-  }
-
-  [contenteditable="true"]:focus {
-    outline: 2px solid #0066cc;
-    background-color: #f0f8ff;
-  }
-
+  /* Editable text inputs - clean look */
   input.editable-input {
-    border: 1px dashed #999;
+    border: none;
     background: transparent;
     padding: 2px 4px;
     font-size: inherit;
@@ -190,107 +142,21 @@
   }
 
   input.editable-input:focus {
-    outline: 2px solid #0066cc;
+    outline: none;
     background-color: #f0f8ff;
-    border: 1px solid #0066cc;
   }
 
-  input.editable-input[type="text"] {
-    border: none;
-    border-bottom: 1px dashed #999;
-    border-radius: 0;
-  }
-
-  input.editable-input[type="text"]:focus {
-    border-bottom: 2px solid #0066cc;
-  }
-
-  input.editable-input[type="date"] {
-    border: 1px dashed #999;
-    padding: 1px 2px;
-  }
-
-  .editable {
+  [contenteditable="true"] {
+    outline: none;
     cursor: text;
   }
 
-  .header [contenteditable="true"],
-  .details [contenteditable="true"] {
-    display: inline-block;
-    min-width: 50px;
-  }
-
-  /* Hide PDF button during generation */
-  .generating-pdf ~ .pdf-button,
-  body.generating-pdf .pdf-button {
-    display: none !important;
-  }
-
-  /* Preserve borders during PDF generation */
-  .generating-pdf {
-    box-sizing: border-box !important;
-  }
-
-  .generating-pdf * {
-    box-sizing: border-box !important;
-  }
-
-  /* Hide editable outlines when generating PDF, but preserve actual borders */
-  .generating-pdf [contenteditable="true"] {
-    outline: none !important;
-    background: transparent !important;
-  }
-
-  .generating-pdf input.editable-input {
-    outline: none !important;
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 1px solid transparent !important;
-  }
-
-  .generating-pdf input.editable-input[type="text"] {
-    border-bottom: none !important;
-  }
-
-  .generating-pdf input.editable-input[type="date"] {
-    border: none !important;
-  }
-
-  .generating-pdf .address-block[contenteditable="true"]:focus {
-    outline: none !important;
-    background-color: transparent !important;
-  }
-
-  /* Ensure borders are visible and crisp - preserve original border widths */
-  .generating-pdf .label {
-    border: 2px solid #000 !important;
-  }
-  
-  .generating-pdf .logo-section,
-  .generating-pdf .details,
-  .generating-pdf .details div,
-  .generating-pdf .order-info,
-  .generating-pdf .address-block,
-  .generating-pdf .qr-left {
-    border: 1px solid #000 !important;
-  }
-  
-  .generating-pdf .header {
-    border-bottom: 2px solid #000 !important;
-  }
-  
-  .generating-pdf .details {
-    border-top: none !important;
-  }
-  
-  .generating-pdf .bottom {
-    border-top: 1px solid #000 !important;
+  [contenteditable="true"]:focus {
+    background-color: #f0f8ff;
   }
 </style>
 </head>
 <body>
-
-<button class="pdf-button" id="share-pdf-btn">Share as PDF</button>
 
 <div class="label" id="label-content">
   <div class="header">
@@ -311,15 +177,21 @@
     <div contenteditable="true">1.0 KG</div>
     <div contenteditable="true">WORK</div>
     <div contenteditable="true">PREPAYMENT</div>
-    <div contenteditable="true">NRS : </div>
+    <div contenteditable="true">NRS :</div>
     <div contenteditable="true">COD : 00</div>
   </div>
 
   <div class="order-info">
-    <p><strong>Order Number:</strong> <input type="text" id="order-number" class="editable-input" maxlength="16" style="width: 200px; text-align: center;"></p>
+    <p><strong>Order Number:</strong>
+      <input type="text" id="order-number" class="editable-input" maxlength="16" style="width: 200px;">
+    </p>
     <div class="bottom">
-      <span>Order Creation Date: <input type="text" id="order-date" class="editable-input" style="width: 120px; text-align: center;"></span>
-      <span>AWB Print Date: <input type="date" id="awb-date" class="editable-input" style="width: 130px;"></span>
+      <span>Order Creation Date:
+        <input type="text" id="order-date" class="editable-input" style="width: 120px;">
+      </span>
+      <span>AWB Print Date:
+        <input type="text" id="awb-date" class="editable-input" style="width: 130px;">
+      </span>
     </div>
   </div>
 
@@ -351,8 +223,6 @@
 
 <!-- JsBarcode for barcode -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<!-- html2pdf.js for PDF generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
   // Generate random 16-digit order number
@@ -381,17 +251,13 @@
     }
   }
 
-  // Initialize order number
+  // Initialize order number and barcode
   const orderNumber = generateOrderNumber();
   const orderNumberInput = document.getElementById('order-number');
   orderNumberInput.value = orderNumber;
-
-  // Update barcode when order number changes
   orderNumberInput.addEventListener('input', function() {
     updateBarcode(this.value);
   });
-
-  // Create initial barcode
   updateBarcode(orderNumber);
 
   // Set today's date for Order Creation and AWB dates
@@ -403,146 +269,9 @@
   document.getElementById('order-date').value = `${day} ${month} ${year}`;
   document.getElementById('awb-date').value = today.toISOString().split('T')[0];
 
-  // Generate QR Code linking to the website
+  // Generate QR code
   const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://www.nepalcanmove.com/`;
   document.getElementById('footer-qr').src = qrURL;
-
-  // Function to extract receiver name from address block
-  function getReceiverName() {
-    const addressBlocks = document.querySelectorAll('.address-block[contenteditable="true"]');
-    for (let block of addressBlocks) {
-      const text = block.innerText || block.textContent;
-      const lines = text.split('\n').filter(line => line.trim());
-      // Check if this is the receiver block (first line should be "Receiver")
-      if (lines.length > 0 && lines[0].trim().toLowerCase().includes('receiver')) {
-        // The receiver name should be after "Receiver" header
-        if (lines.length > 1) {
-          return lines[1].trim(); // Second line after "Receiver"
-        }
-      }
-    }
-    return 'Receiver'; // Default fallback
-  }
-
-  // Function to sanitize filename (remove invalid characters)
-  function sanitizeFileName(name) {
-    // Replace spaces and special characters with dashes, keep only alphanumeric and dashes
-    return name.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-').substring(0, 50);
-  }
-
-  // Function to generate PDF
-  async function generatePDF() {
-    const button = document.getElementById('share-pdf-btn');
-    const originalText = button.textContent;
-    
-    try {
-      // Disable button during generation
-      button.disabled = true;
-      button.textContent = 'Generating PDF...';
-
-      // Get receiver name and order ID
-      const receiverName = getReceiverName();
-      const orderId = document.getElementById('order-number').value || '0000000000000000';
-      
-      // Sanitize receiver name for filename
-      const sanitizedName = sanitizeFileName(receiverName);
-      
-      // Generate filename: NCM-{receivername}-{orderid}.pdf
-      const filename = `NCM-${sanitizedName}-${orderId}.pdf`;
-
-      // Get the label content element
-      const element = document.getElementById('label-content');
-      
-      // Temporarily hide editable outlines by adding a class
-      element.classList.add('generating-pdf');
-      
-      // Wait a moment for styles to apply and ensure layout is stable
-      await new Promise(requestAnimationFrame);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      element.offsetHeight; // force reflow
-      
-      // Determine device scale for sharper rendering on mobile devices
-      const deviceScale = Math.min(3, Math.max(1.5, window.devicePixelRatio || 1));
-      
-      // Use the element's intrinsic dimensions (includes padding & border)
-      const width = element.offsetWidth;
-      const height = element.offsetHeight;
-      
-      // Convert pixels to millimetres (96 px = 25.4 mm)
-      const pxToMm = 25.4 / 96;
-      const widthMM = width * pxToMm;
-      const heightMM = height * pxToMm;
-      
-      // Add a small safety margin so borders are not clipped
-      const margin = 3;
-      const pageWidth = widthMM + margin * 2;
-      const pageHeight = heightMM + margin * 2;
-      
-      // Configure PDF options - match page size exactly to label dimensions
-      const opt = {
-        margin: [margin, margin, margin, margin],
-        filename: filename,
-        image: { type: 'png', quality: 1.0 },
-        html2canvas: { 
-          scale: deviceScale,
-          useCORS: true,
-          allowTaint: false,
-          logging: false,
-          letterRendering: false,
-          backgroundColor: '#ffffff',
-          width: width,
-          height: height,
-          windowWidth: width,
-          windowHeight: height,
-          x: 0,
-          y: 0,
-          scrollX: -window.scrollX,
-          scrollY: -window.scrollY,
-          removeContainer: true,
-          foreignObjectRendering: false
-        },
-        jsPDF: { 
-          unit: 'mm', 
-          format: [pageWidth, pageHeight],
-          orientation: pageWidth > pageHeight ? 'landscape' : 'portrait',
-          compress: true,
-          precision: 16
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      };
-      
-      // Generate and download PDF (ensuring we only keep the first page)
-      const worker = html2pdf().set(opt).from(element).toPdf();
-      const pdf = await worker.get('pdf');
-      const totalPages = pdf.internal.getNumberOfPages();
-      if (totalPages > 1) {
-        for (let i = totalPages; i > 1; i--) {
-          pdf.deletePage(i);
-        }
-      }
-      await worker.save();
-      
-      // Remove the class after PDF generation
-      element.classList.remove('generating-pdf');
-      
-      button.textContent = 'PDF Generated!';
-      setTimeout(() => {
-        button.textContent = originalText;
-      }, 2000);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      document.getElementById('label-content').classList.remove('generating-pdf');
-      button.textContent = 'Error generating PDF';
-      setTimeout(() => {
-        button.textContent = originalText;
-      }, 2000);
-    } finally {
-      button.disabled = false;
-    }
-  }
-
-  // Attach event listener to PDF button
-  document.getElementById('share-pdf-btn').addEventListener('click', generatePDF);
 </script>
 
 </body>
