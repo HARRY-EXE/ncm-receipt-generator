@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment QR Poster Maker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --navy:#151d33;
+    --red:#d81f26;
+    --grayblue:#aab7c9;
+    --paper:#ffffff;
+    --label-gray:#8a94a6;
+    --panel-bg:#f4f5f7;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Roboto, -apple-system, sans-serif;
+    background:var(--panel-bg);
+    color:#1c2331;
+  }
+  .app{
+    display:flex;
+    min-height:100vh;
+    flex-wrap:wrap;
+  }
+  /* ---------- FORM PANEL ---------- */
+  .panel{
+    width:380px;
+    flex-shrink:0;
+    background:#fff;
+    padding:28px 24px 60px;
+    border-right:1px solid #e4e6ea;
+    overflow-y:auto;
+    max-height:100vh;
+  }
+  .panel h1{
+    font-size:19px;
+    margin:0 0 4px;
+    letter-spacing:.2px;
+  }
+  .panel .sub{
+    font-size:13px;
+    color:#7a8296;
+    margin:0 0 22px;
+    line-height:1.4;
+  }
+  .field{
+    margin-bottom:16px;
+  }
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:#565f75;
+    margin-bottom:6px;
+  }
+  .field input[type=text],
+  .field textarea{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid #d7dbe2;
+    border-radius:6px;
+    font-size:14px;
+    font-family:inherit;
+    resize:vertical;
+    background:#fbfbfc;
+  }
+  .field input[type=text]:focus,
+  .field textarea:focus{
+    outline:none;
+    border-color:var(--navy);
+    background:#fff;
+  }
+  .row2{
+    display:flex;
+    gap:10px;
+  }
+  .row2 .field{flex:1;}
+  .divider{
+    border:none;
+    border-top:1px solid #e9ebef;
+    margin:22px 0;
+  }
+  .section-title{
+    font-size:13px;
+    font-weight:700;
+    color:var(--navy);
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .qr-tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .qr-tab{
+    flex:1;
+    text-align:center;
+    padding:8px 6px;
+    font-size:12.5px;
+    font-weight:600;
+    border:1px solid #d7dbe2;
+    border-radius:6px;
+    cursor:pointer;
+    background:#fbfbfc;
+    color:#565f75;
+  }
+  .qr-tab.active{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:#fff;
+  }
+  .file-drop{
+    border:1.5px dashed #cfd4dd;
+    border-radius:8px;
+    padding:16px;
+    text-align:center;
+    font-size:12.5px;
+    color:#7a8296;
+    cursor:pointer;
+    background:#fbfbfc;
+  }
+  .file-drop:hover{border-color:var(--navy);}
+  input[type=file]{display:none;}
+  input[type=color]{
+    width:44px;height:32px;border:1px solid #d7dbe2;border-radius:6px;padding:2px;background:#fff;cursor:pointer;
+  }
+  .color-row{display:flex;align-items:center;gap:10px;}
+  .color-row span{font-size:13px;color:#3c4356;}
+  .steps-block{
+    background:#f7f8fa;
+    border-radius:8px;
+    padding:12px;
+    margin-bottom:10px;
+  }
+  .steps-block label{margin-bottom:4px;}
+  .steps-block .field{margin-bottom:10px;}
+  .steps-block .field:last-child{margin-bottom:0;}
+  #download-btn{
+    width:100%;
+    padding:13px;
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:6px;
+    letter-spacing:.2px;
+    box-shadow:0 4px 10px rgba(216,31,38,.25);
+  }
+  #download-btn:hover{background:#c01920;}
+  #download-btn:disabled{background:#cfd4dd;box-shadow:none;cursor:not-allowed;}
+  .hint{font-size:11.5px;color:#9aa1b0;margin-top:8px;line-height:1.4;}
+
+  /* ---------- PREVIEW ---------- */
+  .preview-wrap{
+    flex:1;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:40px 20px;
+  }
+  #poster{
+    width:480px;
+    background:var(--paper);
+    border-radius:2px;
+    box-shadow:0 10px 40px rgba(20,25,40,.15);
+    overflow:hidden;
+    font-family:'Segoe UI', Roboto, sans-serif;
+  }
+  .p-top{
+    padding:38px 30px 26px;
+    text-align:center;
+  }
+  #p-heading{
+    font-size:26px;
+    font-weight:700;
+    color:var(--navy);
+    margin:0 0 18px;
+    outline:none;
+  }
+  .brand-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:0;
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:22px;
+    box-shadow:0 2px 6px rgba(0,0,0,.12);
+  }
+  .brand-red{
+    background:var(--brand-color, var(--red));
+    color:#fff;
+    font-weight:800;
+    font-style:italic;
+    font-size:22px;
+    padding:8px 14px;
+    letter-spacing:.5px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+  }
+  .signal-icon{
+    flex-shrink:0;
+    margin-top:1px;
+  }
+  .brand-pay{
+    font-weight:800;
+    font-size:22px;
+    color:#111;
+    padding:8px 12px 8px 6px;
+    background:#fff;
+  }
+  #p-compliance{
+    font-size:17px;
+    color:#2a3145;
+    margin:0;
+    outline:none;
+  }
+  .p-qr{
+    display:flex;
+    justify-content:center;
+    padding:20px 40px 10px;
+  }
+  #qr-box{
+    width:340px;
+    height:340px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#fff;
+  }
+  #qr-box img, #qr-box canvas{
+    max-width:100%;
+    max-height:100%;
+  }
+  #qr-placeholder{
+    width:100%;
+    height:100%;
+    border:2px dashed #dfe2e8;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:13px;
+    color:#b3b9c6;
+    padding:20px;
+  }
+  .p-info{
+    text-align:center;
+    padding:14px 30px 30px;
+  }
+  #p-merchant{
+    font-size:24px;
+    font-weight:800;
+    color:var(--navy);
+    margin:0 0 14px;
+    outline:none;
+    letter-spacing:.2px;
+  }
+  .info-line{
+    font-size:16px;
+    color:var(--label-gray);
+    margin:0 0 8px;
+    outline:none;
+  }
+  .info-line b{color:#5a6274;font-weight:600;}
+  .p-footer{
+    display:flex;
+    background:var(--grayblue);
+    min-height:110px;
+    position:relative;
+  }
+  .step-item{
+    flex:1;
+    display:flex;
+    gap:10px;
+    padding:18px 16px;
+    align-items:flex-start;
+    position:relative;
+    z-index:1;
+  }
+  .step-item.one{
+    background:var(--brand-color, var(--red));
+    clip-path:polygon(0 0, 100% 0, 78% 100%, 0% 100%);
+    padding-right:60px;
+  }
+  .step-num{
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:#fff;
+    color:#1c2331;
+    font-weight:800;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .step-item.one .step-num{color:var(--brand-color, var(--red));}
+  .step-item.two .step-num{color:var(--brand-color, var(--red));}
+  .step-text{
+    font-size:12.5px;
+    line-height:1.35;
+    outline:none;
+  }
+  .step-item.one .step-text{color:#fff;font-weight:600;}
+  .step-item.two .step-text{color:#2a3145;font-weight:600;}
+
+  [contenteditable="true"]:hover{
+    background:rgba(21,29,51,0.04);
+    border-radius:4px;
+  }
+  [contenteditable="true"]:focus{
+    background:rgba(21,29,51,0.06);
+    border-radius:4px;
+  }
+
+  @media (max-width: 900px){
+    .app{flex-direction:column;}
+    .panel{width:100%;max-height:none;border-right:none;border-bottom:1px solid #e4e6ea;}
+    #poster{width:100%;max-width:480px;}
+  }
+
+  /* ---------- SAVE MODAL ---------- */
+  #save-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,18,28,.72);
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  #save-modal{
+    background:#fff;
+    border-radius:12px;
+    width:100%;
+    max-width:420px;
+    max-height:90vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  #save-modal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px;
+    font-weight:700;
+    font-size:15px;
+    border-bottom:1px solid #eceef2;
+  }
+  #save-close{
+    border:none;
+    background:#f2f3f5;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    font-size:14px;
+    cursor:pointer;
+    color:#444;
+  }
+  #save-hint{
+    font-size:13px;
+    color:#5c6478;
+    padding:10px 16px 4px;
+    margin:0;
+    line-height:1.4;
+  }
+  #save-img-wrap{
+    padding:10px 16px;
+    overflow-y:auto;
+    display:flex;
+    justify-content:center;
+  }
+  #save-img{
+    max-width:100%;
+    height:auto;
+    border:1px solid #eceef2;
+    border-radius:6px;
+    -webkit-touch-callout:default;
+  }
+  #save-modal-actions{
+    display:flex;
+    gap:10px;
+    padding:14px 16px 18px;
+  }
+  #save-download-link, #save-open-tab{
+    flex:1;
+    text-align:center;
+    padding:11px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    text-decoration:none;
+  }
+  #save-download-link{
+    background:var(--red);
+    color:#fff;
+    border:none;
+  }
+  #save-open-tab{
+    background:#f2f3f5;
+    color:#2a3145;
+    border:none;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= FORM PANEL ================= -->
+  <div class="panel">
+    <h1>Payment QR Poster Maker</h1>
+    <p class="sub">Fill in your details below — the poster on the right updates live. Every line of text on the poster is also directly editable if you click it.</p>
+
+    <div class="field">
+      <label>Top Heading</label>
+      <input type="text" id="in-heading" value="We Accept">
+    </div>
+
+    <div class="field">
+      <label>Compliance / Subtitle Text</label>
+      <input type="text" id="in-compliance" value="नेपाल राष्ट्र बैंकबाट अनुमति प्राप्त">
+    </div>
+
+    <div class="field">
+      <label>Brand Badge Text</label>
+      <div class="row2">
+        <input type="text" id="in-brand1" value="fone" placeholder="e.g. fone">
+        <input type="text" id="in-brand2" value="pay" placeholder="e.g. pay">
+      </div>
+    </div>
+
+    <div class="field color-row">
+      <label style="margin:0;">Accent Color</label>
+      <input type="color" id="in-accent" value="#d81f26">
+      <span>Badge &amp; footer accent</span>
+    </div>
+
+    <hr class="divider">
+
+    <div class="field">
+      <label>Merchant / Business Name</label>
+      <input type="text" id="in-merchant" value="Evans Unisex Co.">
+    </div>
+    <div class="field">
+      <label>Terminal / Account Number</label>
+      <input type="text" id="in-terminal" value="2222080020354494">
+    </div>
+    <div class="field">
+      <label>Address / Branch</label>
+      <input type="text" id="in-address" value="Chitwan Branch">
+    </div>
+
+    <hr class="divider">
+
+    <p class="section-title">QR Code</p>
+    <div class="qr-tabs">
+      <div class="qr-tab active" id="tab-generate">Generate from text</div>
+      <div class="qr-tab" id="tab-upload">Upload image</div>
+    </div>
+
+    <div id="generate-panel">
+      <div class="field">
+        <label>QR Content (payment string, link, or ID)</label>
+        <textarea id="in-qrdata" rows="3" placeholder="Paste the payment string, URL, or code your QR should encode">https://example.com/pay/your-merchant-id</textarea>
+      </div>
+      <div class="field color-row">
+        <label style="margin:0;">QR Dot Color</label>
+        <input type="color" id="in-qrcolor" value="#161616">
+        <span>Dots &amp; corner markers</span>
+      </div>
+      <p class="hint">Generated via the goqr.me QR code API — this content is sent to their service to render the code image, so avoid putting sensitive private data here if that matters for your use case.</p>
+    </div>
+
+    <div id="upload-panel" style="display:none;">
+      <div class="field">
+        <label class="file-drop" for="in-qrfile">Click to upload your own QR image (PNG/JPG)</label>
+        <input type="file" id="in-qrfile" accept="image/*">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <p class="section-title">Instructions Footer</p>
+    <div class="steps-block">
+      <div class="field">
+        <label>Step 1</label>
+        <textarea id="in-step1" rows="3">Open your fonepay Member Mobile Banking app / Digital Wallet / Union pay</textarea>
+      </div>
+      <div class="field">
+        <label>Step 2</label>
+        <textarea id="in-step2" rows="3">Scan this code, confirm the payment details and make quick payments.</textarea>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <button id="download-btn">⬇ Save Poster to Device</button>
+    <p class="hint">Downloads a high-resolution PNG of the poster exactly as shown in the preview.</p>
+  </div>
+
+  <!-- ================= PREVIEW ================= -->
+  <div class="preview-wrap">
+    <div id="poster">
+      <div class="p-top">
+        <h2 id="p-heading" contenteditable="true">We Accept</h2>
+        <div class="brand-badge">
+          <span class="brand-red" id="p-brand1"><svg class="signal-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"><path d="M8.5 15.5a5 5 0 0 1 7 0"/><path d="M5.5 12.5a9 9 0 0 1 13 0"/><circle cx="12" cy="18.5" r="1.4" fill="#ffffff" stroke="none"/></svg><span id="p-brand1-text">fone</span></span>
+          <span class="brand-pay" id="p-brand2">pay</span>
+        </div>
+        <p id="p-compliance" contenteditable="true">नेपाल राष्ट्र बैंकबाट अनुमति प्राप्त</p>
+      </div>
+
+      <div class="p-qr">
+        <div id="qr-box">
+          <div id="qr-placeholder">Your QR code will appear here — enter content on the left, or upload an image</div>
+        </div>
+      </div>
+
+      <div class="p-info">
+        <h3 id="p-merchant" contenteditable="true">Evans Unisex Co.</h3>
+        <p class="info-line" id="p-terminal" contenteditable="true"><b>Terminal:</b> 2222080020354494</p>
+        <p class="info-line" id="p-address" contenteditable="true"><b>Address:</b> Chitwan Branch</p>
+      </div>
+
+      <div class="p-footer">
+        <div class="step-item one">
+          <div class="step-num">1</div>
+          <div class="step-text" id="p-step1" contenteditable="true">Open your fonepay Member Mobile Banking app / Digital Wallet / Union pay</div>
+        </div>
+        <div class="step-item two">
+          <div class="step-num">2</div>
+          <div class="step-text" id="p-step2" contenteditable="true">Scan this code, confirm the payment details and make quick payments.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ---------- simple text bindings (input -> preview) ----------
+function bindText(inputId, previewId, prefixHtml){
+  const input = $(inputId);
+  const preview = $(previewId);
+  input.addEventListener('input', () => {
+    preview.innerHTML = (prefixHtml || '') + input.value;
+  });
+}
+bindText('in-heading','p-heading');
+bindText('in-compliance','p-compliance');
+bindText('in-merchant','p-merchant');
+bindText('in-terminal','p-terminal','<b>Terminal:</b> ');
+bindText('in-address','p-address','<b>Address:</b> ');
+bindText('in-step1','p-step1');
+bindText('in-step2','p-step2');
+$('in-brand1').addEventListener('input', () => $('p-brand1-text').textContent = $('in-brand1').value);
+$('in-brand2').addEventListener('input', () => $('p-brand2').textContent = $('in-brand2').value);
+
+// ---------- reverse bindings (editing directly on poster -> keep inputs in sync) ----------
+function bindReverse(previewId, inputId, stripPrefix){
+  const preview = $(previewId);
+  const input = $(inputId);
+  preview.addEventListener('input', () => {
+    let text = preview.innerText;
+    if(stripPrefix){ text = text.replace(stripPrefix,'').trim(); }
+    input.value = text;
+  });
+}
+bindReverse('p-heading','in-heading');
+bindReverse('p-compliance','in-compliance');
+bindReverse('p-merchant','in-merchant');
+bindReverse('p-terminal','in-terminal','Terminal:');
+bindReverse('p-address','in-address','Address:');
+bindReverse('p-step1','in-step1');
+bindReverse('p-step2','in-step2');
+
+// ---------- accent color ----------
+$('in-accent').addEventListener('input', () => {
+  document.getElementById('poster').style.setProperty('--brand-color', $('in-accent').value);
+});
+
+// ---------- QR tabs ----------
+$('tab-generate').addEventListener('click', () => {
+  $('tab-generate').classList.add('active');
+  $('tab-upload').classList.remove('active');
+  $('generate-panel').style.display = 'block';
+  $('upload-panel').style.display = 'none';
+  renderQR();
+});
+$('tab-upload').addEventListener('click', () => {
+  $('tab-upload').classList.add('active');
+  $('tab-generate').classList.remove('active');
+  $('upload-panel').style.display = 'block';
+  $('generate-panel').style.display = 'none';
+});
+
+// ---------- QR generation (dot style + center logo) ----------
+let qrTimeout;
+
+function renderQR(){
+  const data = $('in-qrdata').value.trim();
+  const box = $('qr-box');
+  box.innerHTML = '';
+  if(!data){
+    box.innerHTML = '<div id="qr-placeholder">Enter QR content on the left to generate a code</div>';
+    return;
+  }
+
+  const dotColor = ($('in-qrcolor').value || '#000000').replace('#','');
+  const params = new URLSearchParams({
+    data: data,
+    size: '600x600',
+    ecc: 'M',
+    margin: '0',
+    color: dotColor,
+    bgcolor: 'ffffff'
+  });
+  const apiUrl = 'https://api.qrserver.com/v1/create-qr-code/?' + params.toString();
+
+  box.innerHTML = '<div id="qr-placeholder">Generating QR code…</div>';
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.alt = 'QR code';
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.display = 'block';
+  img.onload = () => { box.innerHTML = ''; box.appendChild(img); };
+  img.onerror = () => {
+    box.innerHTML = '<div id="qr-placeholder">Could not reach the QR code service — check your internet connection and try again</div>';
+  };
+  img.src = apiUrl;
+}
+
+$('in-qrdata').addEventListener('input', () => {
+  clearTimeout(qrTimeout);
+  qrTimeout = setTimeout(renderQR, 400);
+});
+$('in-qrcolor').addEventListener('input', renderQR);
+
+// ---------- QR upload ----------
+$('in-qrfile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const box = $('qr-box');
+    box.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = ev.target.result;
+    box.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+});
+
+// ---------- initial QR render ----------
+renderQR();
+
+// ---------- Save to device ----------
+$('download-btn').addEventListener('click', () => {
+  const btn = $('download-btn');
+  if(typeof html2canvas === 'undefined'){
+    alert('The image export library failed to load — check your internet connection and reload the page, then try again.');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Preparing image…';
+  html2canvas(document.getElementById('poster'), {
+    scale: 3,
+    backgroundColor: '#ffffff',
+    useCORS: true
+  }).then(canvas => {
+    const dataUrl = canvas.toDataURL('image/png');
+    showSaveModal(dataUrl);
+    btn.disabled = false;
+    btn.textContent = '⬇ Save Poster to Device';
+  }).catch(() => {
+    btn.disabled = false;
+    btn.textContent = '⬇ Save Poster to Device';
+    alert('Something went wrong generating the image. Please try again.');
+  });
+});
+
+function showSaveModal(dataUrl){
+  const name = ($('in-merchant').value || 'payment-qr-poster').trim().replace(/\s+/g,'-').toLowerCase() + '-qr-poster.png';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'save-overlay';
+  overlay.innerHTML = `
+    <div id="save-modal">
+      <div id="save-modal-head">
+        <span>Your poster is ready</span>
+        <button id="save-close" aria-label="Close">✕</button>
+      </div>
+      <p id="save-hint">On phones: press and hold the image below, then choose "Save Image" / "Add to Photos".</p>
+      <div id="save-img-wrap"><img id="save-img" src="${dataUrl}" alt="Poster preview"></div>
+      <div id="save-modal-actions">
+        <a id="save-download-link" href="${dataUrl}" download="${name}">Download</a>
+        <button id="save-open-tab">Open in new tab</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  $('save-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+  $('save-open-tab').addEventListener('click', () => {
+    const w = window.open();
+    if(w){
+      w.document.write('<title>' + name + '</title><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="' + dataUrl + '" style="max-width:100%;height:auto;" /></body>');
+    }else{
+      alert('Please allow pop-ups to open the image in a new tab, or long-press the preview image to save it.');
+    }
+  });
+}
+</script>
+</body>
+</html>
